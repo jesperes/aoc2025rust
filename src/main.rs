@@ -1,4 +1,5 @@
 mod day01;
+mod day02;
 
 use clap::{Parser, ValueEnum};
 use std::fmt::Display;
@@ -7,6 +8,7 @@ use std::time::Instant;
 #[derive(Debug, Clone, ValueEnum)]
 enum Day {
     Day1,
+    Day2,
 }
 
 #[derive(Parser)]
@@ -41,6 +43,10 @@ fn main() {
         Day::Day1 => {
             benchmark("day 1 part 1", || day01::solve_part1(&cli.filename));
             benchmark("day 1 part 2", || day01::solve_part2(&cli.filename));
+        }
+        Day::Day2 => {
+            benchmark("day 2 part 1", || day02::solve_part1(&cli.filename));
+            benchmark("day 2 part 2", || day02::solve_part2(&cli.filename));
         }
     }
 
