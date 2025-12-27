@@ -1,23 +1,9 @@
 mod day01;
 mod day02;
+mod day03;
 
-use clap::{Parser, ValueEnum};
 use std::fmt::Display;
 use std::time::Instant;
-
-#[derive(Debug, Clone, ValueEnum)]
-enum Day {
-    Day1,
-    Day2,
-}
-
-#[derive(Parser)]
-struct Cli {
-    #[arg(value_enum)]
-    day: Day,
-
-    filename: String,
-}
 
 fn benchmark<F, T>(name: &str, f: F)
 where
@@ -28,7 +14,7 @@ where
     let result = f();
     let duration = start.elapsed();
     println!(
-        "{:4} -> {:12} took {:8} \u{03BC}s",
+        "{:4} -> {:20} took {:8} \u{03BC}s",
         name,
         result,
         duration.as_micros()
@@ -36,19 +22,14 @@ where
 }
 
 fn main() {
-    let cli = Cli::parse();
     let start = Instant::now();
 
-    match cli.day {
-        Day::Day1 => {
-            benchmark("day 1 part 1", || day01::solve_part1(&cli.filename));
-            benchmark("day 1 part 2", || day01::solve_part2(&cli.filename));
-        }
-        Day::Day2 => {
-            benchmark("day 2 part 1", || day02::solve_part1(&cli.filename));
-            benchmark("day 2 part 2", || day02::solve_part2(&cli.filename));
-        }
-    }
+    benchmark("day 1 part 1", || day01::solve_part1("inputs/day01.txt"));
+    benchmark("day 1 part 2", || day01::solve_part2("inputs/day01.txt"));
+    benchmark("day 2 part 1", || day02::solve_part1("inputs/day02.txt"));
+    benchmark("day 2 part 2", || day02::solve_part2("inputs/day02.txt"));
+    benchmark("day 3 part 1", || day03::solve_part1("inputs/day03.txt"));
+    benchmark("day 3 part 2", || day03::solve_part2("inputs/day03.txt"));
 
     let duration = start.elapsed();
     println!("Total time taken: {} ms", duration.as_millis());
