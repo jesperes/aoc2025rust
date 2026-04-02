@@ -37,7 +37,7 @@ fn is_removable(rolls: &HashSet<(i32, i32)>, roll: (i32, i32)) -> bool {
         }
     }
 
-    return num_reachable < 4;
+    num_reachable < 4
 }
 
 pub fn solve_part1(filename: &str) -> i32 {
@@ -66,7 +66,7 @@ pub fn solve_part2(filename: &str) -> i32 {
             }
         }
 
-        if removables.len() == 0 {
+        if removables.is_empty() {
             break;
         }
 

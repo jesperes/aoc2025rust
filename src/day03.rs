@@ -38,11 +38,13 @@ fn find_max_joltage(line: &String, num_batteries: usize) -> i64 {
         let mut max: u8 = 0;
         let reserved = num_batteries - joltage.len() - 1;
 
-        for j in i..(line.len() - reserved) {
+        let mut j = i;
+        while j < line.len() - reserved {
             if bytes[j] > max {
                 max = bytes[j];
                 i = j + 1;
             }
+            j += 1;
         }
 
         joltage.push(max as char);

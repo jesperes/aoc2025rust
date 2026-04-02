@@ -15,14 +15,12 @@ pub fn solve_part1(filename: &str) -> i32 {
         let mut zerocount = 0;
         let period = 100;
 
-        for line in reader.lines() {
-            if let Ok(str) = line {
-                let delta = dir_to_delta(str.chars().next().unwrap());
-                let clicks = str[1..].parse::<i32>().unwrap();
-                dial = (dial + period + clicks * delta) % period;
-                if dial == 0 {
-                    zerocount += 1;
-                }
+        for str in reader.lines().map_while(Result::ok) {
+            let delta = dir_to_delta(str.chars().next().unwrap());
+            let clicks = str[1..].parse::<i32>().unwrap();
+            dial = (dial + period + clicks * delta) % period;
+            if dial == 0 {
+                zerocount += 1;
             }
         }
         return zerocount;
@@ -38,16 +36,14 @@ pub fn solve_part2(filename: &str) -> i32 {
         let mut zerocount = 0;
         let period = 100;
 
-        for line in reader.lines() {
-            if let Ok(str) = line {
-                let delta = dir_to_delta(str.chars().next().unwrap());
-                let clicks = str[1..].parse::<i32>().unwrap();
+        for str in reader.lines().map_while(Result::ok) {
+            let delta = dir_to_delta(str.chars().next().unwrap());
+            let clicks = str[1..].parse::<i32>().unwrap();
 
-                for _ in 0..clicks {
-                    dial = (dial + period + delta) % period;
-                    if dial == 0 {
-                        zerocount += 1;
-                    }
+            for _ in 0..clicks {
+                dial = (dial + period + delta) % period;
+                if dial == 0 {
+                    zerocount += 1;
                 }
             }
         }

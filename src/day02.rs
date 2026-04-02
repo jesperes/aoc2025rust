@@ -11,11 +11,11 @@ pub fn solve_part2(filename: &str) -> i64 {
     solve_generic(filename, 2)
 }
 
-fn is_invalid_id(s: &Vec<char>, w: usize, part: i32) -> bool {
+fn is_invalid_id(s: &[char], w: usize, part: i32) -> bool {
     if w == 0 {
         return false;
     }
-    if s.len() % w != 0 {
+    if !s.len().is_multiple_of(w) {
         // ignore widths which would yield a remainder
         return false;
     }
@@ -36,7 +36,7 @@ fn is_invalid_id(s: &Vec<char>, w: usize, part: i32) -> bool {
         return true;
     }
 
-    return false;
+    false
 }
 
 fn solve_generic(filename: &str, part: i32) -> i64 {
@@ -59,9 +59,7 @@ fn solve_generic(filename: &str, part: i32) -> i64 {
                 // part 1
                 if part == 1 {
                     if is_invalid_id(&s, s.len() / 2, part) {
-                        // println!("{} is invalid", id);
                         sum_invalid_ids += id;
-                        break;
                     }
                 } else {
                     // part 2
@@ -76,7 +74,7 @@ fn solve_generic(filename: &str, part: i32) -> i64 {
             }
         }
 
-        return sum_invalid_ids;
+        sum_invalid_ids
     } else {
         panic!();
     }
