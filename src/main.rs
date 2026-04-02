@@ -6,6 +6,8 @@ mod day05;
 mod day06;
 mod day07;
 mod day08;
+mod day09;
+mod day10;
 mod input;
 mod verify;
 
@@ -30,7 +32,7 @@ enum Command {
         /// Run only this part (1 or 2)
         part: Option<u32>,
         /// Number of benchmark iterations per solution
-        #[arg(short, long, default_value_t = 100)]
+        #[arg(short, long, default_value_t = DEFAULT_RUNS)]
         runs: u32,
     },
     /// Print the puzzle input for a day, downloading it if needed
@@ -48,15 +50,16 @@ enum Command {
 }
 
 const BENCH_TIMEOUT: Duration = Duration::from_secs(5);
+const DEFAULT_RUNS: u32 = 100;
 
 // Column widths (content between │ bars, including surrounding spaces):
 //   col 1 (name):   │ {:<14} │  →  16
 //   col 2 (answer): │ {:>20} │  →  22
 //   col 3 (time):   │ {:>10} μs │  →  15  (1 + 10 + " μs " = 4)
-//   col 4 (runs):   │ {:>2} runs │  →  9   (1 + 2 + " runs " = 6)
-//   col 5 (check):  │ {} │  →  3   (1 + 1 + 1)
-const TOP_BORDER: &str    = "  ┌────────────────┬──────────────────────┬───────────────┬─────────┬───┐";
-const BOTTOM_BORDER: &str = "  └────────────────┴──────────────────────┴───────────────┴─────────┴───┘";
+//   col 4 (runs):   │ {:>3} runs │  →  10  (1 + 3 + " runs " = 6)
+//   col 5 (check):  │ {}   │  →  5   (1 + 1 + 3)
+const TOP_BORDER: &str    = "  ┌────────────────┬──────────────────────┬───────────────┬──────────┬─────┐";
+const BOTTOM_BORDER: &str = "  └────────────────┴──────────────────────┴───────────────┴──────────┴─────┘";
 
 struct BenchResult {
     answer: String,
@@ -74,7 +77,7 @@ where
     let mut runs = 0;
     for _ in 0..max_runs {
         pb.set_message(format!(
-            "│ {:<14} │ {:>20} │ {:>10} μs │ {:>2}      │   │",
+            "│ {:<14} │ {:>20} │ {:>10} μs │ {:>3}      │     │",
             name,
             "…",
             format!("{}/{}", runs + 1, max_runs),
@@ -101,31 +104,29 @@ fn format_row(name: &str, result: &BenchResult, expected: Option<&str>) -> Strin
         Some(_) => "\x1b[31m✗\x1b[0m",
         None => " ",
     };
+    let time_color = if result.avg_micros < 1000 { "\x1b[32m" } else { "\x1b[31m" };
     format!(
-        "│ {:<14} │ {:>20} │ {:>10} μs │ {:>2} runs │ {} │",
-        name, result.answer, result.avg_micros, result.runs, check
+        "│ {:<14} │ {:>20} │ {}{:>10}\x1b[0m μs │ {:>3} runs │ {}   │",
+        name, result.answer, time_color, result.avg_micros, result.runs, check
     )
 }
 
 fn main() {
     let cli = Cli::parse();
 
-    match cli.command.unwrap_or(Command::Run { day: None, part: None, runs: 10 }) {
+    match cli.command.unwrap_or(Command::Run { day: None, part: None, runs: DEFAULT_RUNS }) {
         Command::Input { day } => {
             let path = input::ensure_input(day);
             print!("{}", std::fs::read_to_string(&path).unwrap());
-            return;
         }
         Command::Answer { day } => {
             let (p1, p2) = verify::expected_answers(day);
             println!("part 1: {}", p1.as_deref().unwrap_or("(not yet solved)"));
             println!("part 2: {}", p2.as_deref().unwrap_or("(not yet solved)"));
-            return;
         }
         Command::Puzzle { day } => {
             let path = input::ensure_puzzle(day);
             print!("{}", std::fs::read_to_string(&path).unwrap());
-            return;
         }
         Command::Run { day: filter_day, part: filter_part, runs } => {
             run_solutions(filter_day, filter_part, runs);
@@ -142,6 +143,8 @@ fn run_solutions(filter_day: Option<u32>, filter_part: Option<u32>, bench_runs: 
     let day06 = input::ensure_input(6);
     let day07 = input::ensure_input(7);
     let day08 = input::ensure_input(8);
+    let day09 = input::ensure_input(9);
+    let day10 = input::ensure_input(10);
 
     let (a1p1, a1p2) = verify::expected_answers(1);
     let (a2p1, a2p2) = verify::expected_answers(2);
@@ -151,6 +154,8 @@ fn run_solutions(filter_day: Option<u32>, filter_part: Option<u32>, bench_runs: 
     let (a6p1, a6p2) = verify::expected_answers(6);
     let (a7p1, a7p2) = verify::expected_answers(7);
     let (a8p1, a8p2) = verify::expected_answers(8);
+    let (a9p1, a9p2) = verify::expected_answers(9);
+    let (a10p1, a10p2) = verify::expected_answers(10);
 
     type Solution = (&'static str, u32, u32, Option<String>, Box<dyn Fn() -> String>);
     let all_solutions: Vec<Solution> = vec![
@@ -170,12 +175,16 @@ fn run_solutions(filter_day: Option<u32>, filter_part: Option<u32>, bench_runs: 
         ("day 7 part 2", 7, 2, a7p2, { let p = day07.clone(); Box::new(move || day07::solve_part2(&p).to_string()) }),
         ("day 8 part 1", 8, 1, a8p1, { let p = day08.clone(); Box::new(move || day08::solve_part1(&p).to_string()) }),
         ("day 8 part 2", 8, 2, a8p2, { let p = day08.clone(); Box::new(move || day08::solve_part2(&p).to_string()) }),
+        ("day 9 part 1", 9, 1, a9p1, { let p = day09.clone(); Box::new(move || day09::solve_part1(&p).to_string()) }),
+        ("day 9 part 2", 9, 2, a9p2, { let p = day09.clone(); Box::new(move || day09::solve_part2(&p).to_string()) }),
+        ("day 10 part 1", 10, 1, a10p1, { let p = day10.clone(); Box::new(move || day10::solve_part1(&p).to_string()) }),
+        ("day 10 part 2", 10, 2, a10p2, { let p = day10.clone(); Box::new(move || day10::solve_part2(&p).to_string()) }),
     ];
 
     let solutions: Vec<_> = all_solutions
         .into_iter()
         .filter(|(_, day, part, _, _)| {
-            filter_day.map_or(true, |d| d == *day) && filter_part.map_or(true, |p| p == *part)
+            filter_day.is_none_or(|d| d == *day) && filter_part.is_none_or(|p| p == *part)
         })
         .collect();
 
@@ -193,7 +202,7 @@ fn run_solutions(filter_day: Option<u32>, filter_part: Option<u32>, bench_runs: 
         .map(|(i, (name, _, _, _, _))| {
             let pb = mp.add(ProgressBar::new_spinner());
             let pending = format!(
-                "│ {:<14} │ {:>20} │ {:>10}    │ {:>2}      │   │",
+                "│ {:<14} │ {:>20} │ {:>10}    │ {:>3}      │     │",
                 name, "…", "…", "…"
             );
             if i == 0 {
@@ -236,5 +245,7 @@ fn run_solutions(filter_day: Option<u32>, filter_part: Option<u32>, bench_runs: 
     }
     println!("{}", BOTTOM_BORDER);
 
-    println!("\nTotal time: {} ms", duration.as_millis());
+    let avg_ms = duration.as_secs_f64() * 1000.0 / bench_runs as f64;
+    let color = if avg_ms < 1.0 { "\x1b[32m" } else { "\x1b[31m" };
+    println!("\nTotal time: {}{:.1} ms\x1b[0m", color, avg_ms);
 }

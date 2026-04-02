@@ -1,54 +1,33 @@
-use std::{
-    fs::File,
-    io::{BufRead, BufReader},
-};
+use std::fs;
 
-pub fn solve_part1(filename: &str) -> i64 {
-    solve_generic(filename, 1)
+// Both parts greedily pick the lexicographically largest digit sequence from
+// each line. At step k, scan from the current position up to len-reserved,
+// track the maximum byte, and advance i to just after where that max was found.
+// Accumulate directly into i64 to avoid String building and parsing.
+pub fn solve_part1(filename: &str) -> i64 { solve(filename, 2) }
+pub fn solve_part2(filename: &str) -> i64 { solve(filename, 12) }
+
+fn solve(filename: &str, num_batteries: usize) -> i64 {
+    let data = fs::read_to_string(filename).unwrap();
+    data.lines()
+        .map(|l| find_max_joltage(l.as_bytes(), num_batteries))
+        .sum()
 }
 
-pub fn solve_part2(filename: &str) -> i64 {
-    solve_generic(filename, 2)
-}
-
-fn solve_generic(filename: &str, part: i32) -> i64 {
-    let file = File::open(filename).unwrap();
-    let reader = BufReader::new(file);
-    let mut output_joltage: i64 = 0;
-    for line in reader.lines() {
-        let s = line.unwrap();
-        let num_batteries = if part == 1 { 2 } else { 12 };
-        let j = find_max_joltage(&s, num_batteries);
-        output_joltage += j;
-    }
-
-    output_joltage
-}
-
-fn find_max_joltage(line: &String, num_batteries: usize) -> i64 {
-    let mut joltage = String::new();
-    let mut i: usize = 0;
-    let bytes = line.as_bytes();
-
-    loop {
-        if joltage.len() >= num_batteries {
-            break;
-        }
-
-        let mut max: u8 = 0;
-        let reserved = num_batteries - joltage.len() - 1;
-
-        let mut j = i;
-        while j < line.len() - reserved {
+#[allow(clippy::needless_range_loop, clippy::mut_range_bound)]
+fn find_max_joltage(bytes: &[u8], num_batteries: usize) -> i64 {
+    let mut result = 0i64;
+    let mut i = 0;
+    for step in 0..num_batteries {
+        let reserved = num_batteries - step - 1;
+        let mut max = 0u8;
+        for j in i..bytes.len() - reserved {
             if bytes[j] > max {
                 max = bytes[j];
                 i = j + 1;
             }
-            j += 1;
         }
-
-        joltage.push(max as char);
+        result = result * 10 + (max - b'0') as i64;
     }
-
-    joltage.parse().unwrap()
+    result
 }
