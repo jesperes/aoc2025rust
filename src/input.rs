@@ -41,7 +41,6 @@ pub fn ensure_input(day: u32) -> String {
 }
 
 /// Returns the path to the cached puzzle description for the given day, downloading if necessary.
-#[allow(dead_code)]
 pub fn ensure_puzzle(day: u32) -> String {
     let path = format!("inputs/day{:02}.puzzle.txt", day);
     if Path::new(&path).exists() {
@@ -70,7 +69,6 @@ pub fn ensure_puzzle(day: u32) -> String {
     path
 }
 
-#[allow(dead_code)]
 fn extract_articles(html: &str) -> String {
     let mut out = String::new();
     let mut pos = 0;
@@ -90,7 +88,6 @@ fn extract_articles(html: &str) -> String {
     out
 }
 
-#[allow(dead_code)]
 fn strip_tags(html: &str) -> String {
     let mut out = String::new();
     let mut in_tag = false;

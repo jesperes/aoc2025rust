@@ -2,10 +2,12 @@ mod day01;
 mod day02;
 mod day03;
 mod day04;
+mod day05;
+mod day06;
 mod input;
 mod verify;
 
-use clap::Parser;
+use clap::{Parser, Subcommand};
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 use std::fmt::Display;
 use std::time::{Duration, Instant};
@@ -13,13 +15,34 @@ use std::time::{Duration, Instant};
 #[derive(Parser)]
 #[command(about = "Advent of Code 2025 solutions")]
 struct Cli {
-    /// Run only this day (1-25)
-    day: Option<u32>,
-    /// Run only this part (1 or 2)
-    part: Option<u32>,
-    /// Number of benchmark iterations per solution
-    #[arg(short, long, default_value_t = 10)]
-    runs: u32,
+    #[command(subcommand)]
+    command: Option<Command>,
+}
+
+#[derive(Subcommand)]
+enum Command {
+    /// Run and benchmark solutions (default)
+    Run {
+        /// Run only this day (1-25)
+        day: Option<u32>,
+        /// Run only this part (1 or 2)
+        part: Option<u32>,
+        /// Number of benchmark iterations per solution
+        #[arg(short, long, default_value_t = 100)]
+        runs: u32,
+    },
+    /// Print the puzzle input for a day, downloading it if needed
+    Input {
+        day: u32,
+    },
+    /// Print the cached answers for a day, downloading them if needed
+    Answer {
+        day: u32,
+    },
+    /// Print the puzzle description for a day, downloading it if needed
+    Puzzle {
+        day: u32,
+    },
 }
 
 const BENCH_TIMEOUT: Duration = Duration::from_secs(5);
@@ -85,15 +108,43 @@ fn format_row(name: &str, result: &BenchResult, expected: Option<&str>) -> Strin
 fn main() {
     let cli = Cli::parse();
 
+    match cli.command.unwrap_or(Command::Run { day: None, part: None, runs: 10 }) {
+        Command::Input { day } => {
+            let path = input::ensure_input(day);
+            print!("{}", std::fs::read_to_string(&path).unwrap());
+            return;
+        }
+        Command::Answer { day } => {
+            let (p1, p2) = verify::expected_answers(day);
+            println!("part 1: {}", p1.as_deref().unwrap_or("(not yet solved)"));
+            println!("part 2: {}", p2.as_deref().unwrap_or("(not yet solved)"));
+            return;
+        }
+        Command::Puzzle { day } => {
+            let path = input::ensure_puzzle(day);
+            print!("{}", std::fs::read_to_string(&path).unwrap());
+            return;
+        }
+        Command::Run { day: filter_day, part: filter_part, runs } => {
+            run_solutions(filter_day, filter_part, runs);
+        }
+    }
+}
+
+fn run_solutions(filter_day: Option<u32>, filter_part: Option<u32>, bench_runs: u32) {
     let day01 = input::ensure_input(1);
     let day02 = input::ensure_input(2);
     let day03 = input::ensure_input(3);
     let day04 = input::ensure_input(4);
+    let day05 = input::ensure_input(5);
+    let day06 = input::ensure_input(6);
 
     let (a1p1, a1p2) = verify::expected_answers(1);
     let (a2p1, a2p2) = verify::expected_answers(2);
     let (a3p1, a3p2) = verify::expected_answers(3);
     let (a4p1, a4p2) = verify::expected_answers(4);
+    let (a5p1, a5p2) = verify::expected_answers(5);
+    let (a6p1, a6p2) = verify::expected_answers(6);
 
     type Solution = (&'static str, u32, u32, Option<String>, Box<dyn Fn() -> String>);
     let all_solutions: Vec<Solution> = vec![
@@ -105,12 +156,16 @@ fn main() {
         ("day 3 part 2", 3, 2, a3p2, { let p = day03.clone(); Box::new(move || day03::solve_part2(&p).to_string()) }),
         ("day 4 part 1", 4, 1, a4p1, { let p = day04.clone(); Box::new(move || day04::solve_part1(&p).to_string()) }),
         ("day 4 part 2", 4, 2, a4p2, { let p = day04.clone(); Box::new(move || day04::solve_part2(&p).to_string()) }),
+        ("day 5 part 1", 5, 1, a5p1, { let p = day05.clone(); Box::new(move || day05::solve_part1(&p).to_string()) }),
+        ("day 5 part 2", 5, 2, a5p2, { let p = day05.clone(); Box::new(move || day05::solve_part2(&p).to_string()) }),
+        ("day 6 part 1", 6, 1, a6p1, { let p = day06.clone(); Box::new(move || day06::solve_part1(&p).to_string()) }),
+        ("day 6 part 2", 6, 2, a6p2, { let p = day06.clone(); Box::new(move || day06::solve_part2(&p).to_string()) }),
     ];
 
     let solutions: Vec<_> = all_solutions
         .into_iter()
         .filter(|(_, day, part, _, _)| {
-            cli.day.map_or(true, |d| d == *day) && cli.part.map_or(true, |p| p == *part)
+            filter_day.map_or(true, |d| d == *day) && filter_part.map_or(true, |p| p == *part)
         })
         .collect();
 
@@ -150,7 +205,7 @@ fn main() {
     let mut results: Vec<String> = Vec::with_capacity(solutions.len());
 
     for (i, (name, _, _, expected, f)) in solutions.iter().enumerate() {
-        let result = run_benchmark(name, cli.runs, &bars[i], f.as_ref());
+        let result = run_benchmark(name, bench_runs, &bars[i], f.as_ref());
         let row = format_row(name, &result, expected.as_deref());
         results.push(row.clone());
 
