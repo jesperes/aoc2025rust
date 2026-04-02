@@ -4,6 +4,8 @@ mod day03;
 mod day04;
 mod day05;
 mod day06;
+mod day07;
+mod day08;
 mod input;
 mod verify;
 
@@ -138,6 +140,8 @@ fn run_solutions(filter_day: Option<u32>, filter_part: Option<u32>, bench_runs: 
     let day04 = input::ensure_input(4);
     let day05 = input::ensure_input(5);
     let day06 = input::ensure_input(6);
+    let day07 = input::ensure_input(7);
+    let day08 = input::ensure_input(8);
 
     let (a1p1, a1p2) = verify::expected_answers(1);
     let (a2p1, a2p2) = verify::expected_answers(2);
@@ -145,6 +149,8 @@ fn run_solutions(filter_day: Option<u32>, filter_part: Option<u32>, bench_runs: 
     let (a4p1, a4p2) = verify::expected_answers(4);
     let (a5p1, a5p2) = verify::expected_answers(5);
     let (a6p1, a6p2) = verify::expected_answers(6);
+    let (a7p1, a7p2) = verify::expected_answers(7);
+    let (a8p1, a8p2) = verify::expected_answers(8);
 
     type Solution = (&'static str, u32, u32, Option<String>, Box<dyn Fn() -> String>);
     let all_solutions: Vec<Solution> = vec![
@@ -160,6 +166,10 @@ fn run_solutions(filter_day: Option<u32>, filter_part: Option<u32>, bench_runs: 
         ("day 5 part 2", 5, 2, a5p2, { let p = day05.clone(); Box::new(move || day05::solve_part2(&p).to_string()) }),
         ("day 6 part 1", 6, 1, a6p1, { let p = day06.clone(); Box::new(move || day06::solve_part1(&p).to_string()) }),
         ("day 6 part 2", 6, 2, a6p2, { let p = day06.clone(); Box::new(move || day06::solve_part2(&p).to_string()) }),
+        ("day 7 part 1", 7, 1, a7p1, { let p = day07.clone(); Box::new(move || day07::solve_part1(&p).to_string()) }),
+        ("day 7 part 2", 7, 2, a7p2, { let p = day07.clone(); Box::new(move || day07::solve_part2(&p).to_string()) }),
+        ("day 8 part 1", 8, 1, a8p1, { let p = day08.clone(); Box::new(move || day08::solve_part1(&p).to_string()) }),
+        ("day 8 part 2", 8, 2, a8p2, { let p = day08.clone(); Box::new(move || day08::solve_part2(&p).to_string()) }),
     ];
 
     let solutions: Vec<_> = all_solutions
