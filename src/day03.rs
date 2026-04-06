@@ -31,3 +31,23 @@ fn find_max_joltage(bytes: &[u8], num_batteries: usize) -> i64 {
     }
     result
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const EXAMPLE: &str = "\
+987654321111111
+811111111111119
+234234234234278
+818181911112111
+";
+
+    #[test]
+    fn example() {
+        let path = "/tmp/day03_ex.txt";
+        std::fs::write(path, EXAMPLE).unwrap();
+        assert_eq!(solve_part1(path), 357);
+        assert_eq!(solve_part2(path), 3121910778619);
+    }
+}

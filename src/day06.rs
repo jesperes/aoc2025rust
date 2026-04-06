@@ -99,3 +99,23 @@ pub fn solve_part2(filename: &str) -> i128 {
         })
         .sum()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const EXAMPLE: &str = "\
+123 328  51 64
+ 45 64  387 23
+  6 98  215 314
+*   +   *   +
+";
+
+    #[test]
+    fn example() {
+        let path = "/tmp/day06_ex.txt";
+        std::fs::write(path, EXAMPLE).unwrap();
+        assert_eq!(solve_part1(path), 4277556);
+        assert_eq!(solve_part2(path), 3263827);
+    }
+}

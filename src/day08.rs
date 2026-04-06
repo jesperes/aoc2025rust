@@ -69,12 +69,9 @@ impl UnionFind {
 // Sort points by x first. Then for each i, the inner j-loop only goes right
 // (x[j] >= x[i]) and dx grows monotonically, so we can break as soon as
 // dx² alone exceeds the current heap threshold — skipping all further j.
-pub fn solve_part1(filename: &str) -> i64 {
-    let pts = parse(filename);
+fn top3_circuit_sizes(pts: &Points, k: usize) -> i64 {
     let n = pts.len();
-    let k = 1000;
 
-    // Sort indices by x coordinate.
     let mut order: Vec<usize> = (0..n).collect();
     order.sort_unstable_by_key(|&i| pts.x[i]);
 
@@ -83,7 +80,7 @@ pub fn solve_part1(filename: &str) -> i64 {
     let sz: Vec<i32> = order.iter().map(|&i| pts.z[i]).collect();
 
     let mut heap: BinaryHeap<(i64, usize, usize)> = BinaryHeap::with_capacity(k + 1);
-    let mut thresh = i64::MAX; // current worst distance in heap
+    let mut thresh = i64::MAX;
 
     for i in 0..n {
         let xi = sx[i] as i64;
@@ -93,7 +90,7 @@ pub fn solve_part1(filename: &str) -> i64 {
 
         for j in i + 1..n {
             let dx = sx[j] as i64 - xi;
-            if dx * dx >= thresh { break; } // sorted by x; dx only grows
+            if dx * dx >= thresh { break; }
 
             let dy = sy[j] as i64 - yi;
             let dz = sz[j] as i64 - zi;
@@ -118,6 +115,10 @@ pub fn solve_part1(filename: &str) -> i64 {
         .collect();
     sizes.sort_unstable_by(|a, b| b.cmp(a));
     sizes[0] as i64 * sizes[1] as i64 * sizes[2] as i64
+}
+
+pub fn solve_part1(filename: &str) -> i64 {
+    top3_circuit_sizes(&parse(filename), 1000)
 }
 
 // Prim's MST, O(N²). The max-weight MST edge is the last connection needed
@@ -180,4 +181,40 @@ pub fn solve_part2(filename: &str) -> i64 {
     }
 
     pts.x[last_i] as i64 * pts.x[last_j] as i64
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const EXAMPLE: &str = "\
+162,817,812
+57,618,57
+906,360,560
+592,479,940
+352,342,300
+466,668,158
+542,29,236
+431,825,988
+739,650,466
+52,470,668
+216,146,977
+819,987,18
+117,168,530
+805,96,715
+346,949,466
+970,615,88
+941,993,340
+862,61,35
+984,92,344
+425,690,689
+";
+
+    #[test]
+    fn example() {
+        let path = "/tmp/day08_ex.txt";
+        std::fs::write(path, EXAMPLE).unwrap();
+        assert_eq!(top3_circuit_sizes(&parse(path), 10), 40);
+        assert_eq!(solve_part2(path), 25272);
+    }
 }

@@ -90,3 +90,29 @@ pub fn solve_part2(filename: &str) -> i32 {
 
     removed
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const EXAMPLE: &str = "\
+..@@.@@@@.
+@@@.@.@.@@
+@@@@@.@.@@
+@.@@@@..@.
+@@.@@@@.@@
+.@@@@@@@.@
+.@.@.@.@@@
+@.@@@.@@@@
+.@@@@@@@@.
+@.@.@@@.@.
+";
+
+    #[test]
+    fn example() {
+        let path = "/tmp/day04_ex.txt";
+        std::fs::write(path, EXAMPLE).unwrap();
+        assert_eq!(solve_part1(path), 13);
+        assert_eq!(solve_part2(path), 43);
+    }
+}

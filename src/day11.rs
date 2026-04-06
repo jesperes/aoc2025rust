@@ -56,9 +56,42 @@ pub fn solve_part2(filename: &str) -> u64 {
 mod tests {
     use super::*;
 
+    const EXAMPLE1: &str = "\
+aaa: you hhh
+you: bbb ccc
+bbb: ddd eee
+ccc: ddd eee fff
+ddd: ggg
+eee: out
+fff: out
+ggg: out
+hhh: ccc fff iii
+iii: out
+";
+
+    const EXAMPLE2: &str = "\
+svr: aaa bbb
+aaa: fft
+fft: ccc
+bbb: tty
+tty: ccc
+ccc: ddd eee
+ddd: hub
+hub: fff
+eee: dac
+dac: fff
+fff: ggg hhh
+ggg: out
+hhh: out
+";
+
     #[test]
     fn example() {
-        assert_eq!(solve_part1("/tmp/day11_ex.txt"), 5);
-        assert_eq!(solve_part2("/tmp/day11_ex2.txt"), 2);
+        let p1 = "/tmp/day11_ex.txt";
+        let p2 = "/tmp/day11_ex2.txt";
+        std::fs::write(p1, EXAMPLE1).unwrap();
+        std::fs::write(p2, EXAMPLE2).unwrap();
+        assert_eq!(solve_part1(p1), 5);
+        assert_eq!(solve_part2(p2), 2);
     }
 }

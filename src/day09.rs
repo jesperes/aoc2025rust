@@ -157,3 +157,27 @@ pub fn solve_part2(filename: &str) -> i64 {
 
     best
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const EXAMPLE: &str = "\
+7,1
+11,1
+11,7
+9,7
+9,5
+2,5
+2,3
+7,3
+";
+
+    #[test]
+    fn example() {
+        let path = "/tmp/day09_ex.txt";
+        std::fs::write(path, EXAMPLE).unwrap();
+        assert_eq!(solve_part1(path), 50);
+        assert_eq!(solve_part2(path), 24);
+    }
+}

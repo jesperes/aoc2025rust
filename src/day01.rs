@@ -63,3 +63,29 @@ pub fn solve_part2(filename: &str) -> i32 {
     }
     zerocount
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const EXAMPLE: &str = "\
+L68
+L30
+R48
+L5
+R60
+L55
+L1
+L99
+R14
+L82
+";
+
+    #[test]
+    fn example() {
+        let path = "/tmp/day01_ex.txt";
+        std::fs::write(path, EXAMPLE).unwrap();
+        assert_eq!(solve_part1(path), 3);
+        assert_eq!(solve_part2(path), 6);
+    }
+}

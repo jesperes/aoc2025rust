@@ -58,3 +58,30 @@ pub fn solve_part2(filename: &str) -> u64 {
 
     merged.iter().map(|(lo, hi)| hi - lo + 1).sum()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const EXAMPLE: &str = "\
+3-5
+10-14
+16-20
+12-18
+
+1
+5
+8
+11
+17
+32
+";
+
+    #[test]
+    fn example() {
+        let path = "/tmp/day05_ex.txt";
+        std::fs::write(path, EXAMPLE).unwrap();
+        assert_eq!(solve_part1(path), 3);
+        assert_eq!(solve_part2(path), 14);
+    }
+}
