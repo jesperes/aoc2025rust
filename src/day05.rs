@@ -1,3 +1,10 @@
+// Advent of Code 2025, Day 5: ID Range Lookup
+// https://adventofcode.com/2025/day/5
+//
+// Given a list of numeric ranges and a list of query IDs, Part 1 counts how
+// many IDs fall within at least one range. Part 2 counts the total number of
+// integers covered by the union of all ranges (after merging overlapping ones).
+
 use std::fs;
 
 fn parse(filename: &str) -> (Vec<(u64, u64)>, Vec<u64>) {

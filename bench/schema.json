@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AoC Benchmark Output",
+  "type": "object",
+  "required": ["language", "total_avg_micros", "solutions"],
+  "additionalProperties": false,
+  "properties": {
+    "language": {
+      "type": "string",
+      "description": "Programming language of the solutions"
+    },
+    "total_avg_micros": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Sum of avg_micros across all solutions"
+    },
+    "solutions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "day", "part", "answer", "avg_micros", "runs"],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Human-readable label, e.g. \"day 1 part 1\""
+          },
+          "day": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 25
+          },
+          "part": {
+            "type": "integer",
+            "enum": [1, 2]
+          },
+          "answer": {
+            "type": "string",
+            "description": "Solution output as a string"
+          },
+          "avg_micros": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Average wall-clock time per run in microseconds"
+          },
+          "runs": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Number of benchmark iterations completed (may be less than requested if timeout was hit)"
+          }
+        }
+      }
+    }
+  }
+}

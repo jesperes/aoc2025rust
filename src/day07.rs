@@ -1,3 +1,12 @@
+// Advent of Code 2025, Day 7: Beam Splitter
+// https://adventofcode.com/2025/day/7
+//
+// A beam falls downward through a grid from a start column (S). Empty cells
+// pass the beam straight down; splitter cells (^) stop the beam and spawn two
+// new beams going left and right. Part 1: count how many splitters are hit.
+// Part 2: count how many distinct "timelines" (paths) exit the bottom of the
+// grid, computed via bottom-up DP.
+
 use std::{collections::VecDeque, fs};
 
 fn parse(filename: &str) -> (Vec<Vec<char>>, usize) {

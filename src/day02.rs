@@ -1,3 +1,11 @@
+// Advent of Code 2025, Day 2: ID Validator
+// https://adventofcode.com/2025/day/2
+//
+// Given ranges of numeric IDs, find the sum of "invalid" IDs — numbers whose
+// decimal representation consists of a shorter pattern repeated two or more
+// times (e.g. 1212, 99, 123123). Part 1 counts IDs with exactly one repeated
+// pattern (m=2). Part 2 counts IDs with any number of repetitions (m≥2).
+//
 // Both parts avoid iterating over individual IDs in each range.
 //
 // Part 1: invalid IDs (pattern P repeated exactly twice) have the form N = P * (10^k + 1).

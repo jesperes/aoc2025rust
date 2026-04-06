@@ -1,3 +1,13 @@
+// Advent of Code 2025, Day 10: Button Panel
+// https://adventofcode.com/2025/day/10
+//
+// Each line describes a panel: a target bit pattern, a set of buttons (each
+// toggling one or more bits), and a list of joltage values. Part 1: for each
+// panel, find the minimum number of button presses to reach the target pattern
+// (BFS over bitmask states), then return the sum of joltages at those indices.
+// Part 2: count the number of distinct button-press sequences that reach the
+// target, weighted by joltage products (DP over bitmask states).
+
 use std::fs;
 
 fn parse_line(line: &str) -> (u32, Vec<u32>, Vec<u64>, usize) {

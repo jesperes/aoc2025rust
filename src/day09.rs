@@ -1,3 +1,13 @@
+// Advent of Code 2025, Day 9: Rectilinear Polygon
+// https://adventofcode.com/2025/day/9
+//
+// Input is a set of 2D points forming the corners of a closed rectilinear
+// polygon (red tiles). Part 1: find the axis-aligned bounding rectangle with
+// maximum inclusive area over all pairs of points. Part 2: find the largest
+// axis-aligned rectangle whose corners are both red tiles and whose interior
+// contains only red/green tiles (no exterior cells), using coordinate
+// compression, flood-fill, and 2D prefix sums.
+
 use std::fs;
 
 fn parse(filename: &str) -> Vec<(i64, i64)> {

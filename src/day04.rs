@@ -1,3 +1,11 @@
+// Advent of Code 2025, Day 4: Bread Rolls
+// https://adventofcode.com/2025/day/4
+//
+// A 2D grid of bread rolls (@). Each roll has up to 8 neighbours. Part 1:
+// count rolls with fewer than 4 occupied neighbours (exposed rolls). Part 2:
+// simulate iterative "peeling" — repeatedly remove all rolls with fewer than 4
+// neighbours until none remain, and count how many rounds this takes.
+
 use std::{collections::VecDeque, fs};
 
 // Part 1: count rolls with fewer than 4 occupied neighbours.

@@ -1,3 +1,12 @@
+// Advent of Code 2025, Day 1: Rotary Lock
+// https://adventofcode.com/2025/day/1
+//
+// A dial with 100 positions (0–99) starts at 50. Each instruction rotates it
+// left or right by some number of clicks. Part 1: count how many instructions
+// land the dial exactly on 0 after rotation. Part 2: count how many individual
+// clicks land on 0 across all instructions (i.e. the dial passes through 0
+// during rotation, not just at the end).
+//
 // Part 1: simulate dial rotations mod 100, count times it lands on 0. O(instructions).
 // Part 2: naive simulation is O(total clicks). Instead, compute zero-crossings per
 // rotation analytically in O(1): given start position s and delta ±1, the first click

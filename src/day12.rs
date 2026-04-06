@@ -1,3 +1,12 @@
+// Advent of Code 2025, Day 12: Polyomino Packing
+// https://adventofcode.com/2025/day/12
+//
+// Given a set of polyomino shapes (each up to 3×3, defined on a grid) and a
+// list of rectangular regions with counts of each shape to place, determine
+// how many regions can be exactly tiled. Shapes may be rotated and reflected
+// (all 8 elements of D4). Uses backtracking with area-feasibility pruning and
+// min-cell symmetry breaking to avoid redundant placements of identical pieces.
+
 use std::collections::HashSet;
 use std::fs;
 

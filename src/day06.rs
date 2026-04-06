@@ -1,3 +1,12 @@
+// Advent of Code 2025, Day 6: Spreadsheet
+// https://adventofcode.com/2025/day/6
+//
+// The input is an ASCII-art spreadsheet: columns of numbers separated by blank
+// columns, with an operator (+ or *) in the bottom row of each column group.
+// Part 1: apply each group's operator to its column of numbers and sum all results.
+// Part 2: apply each group's operator to its row of numbers (read right-to-left)
+// and sum all results.
+
 use std::fs;
 
 // Parse the grid as a flat byte array with a fixed stride, padding rows with

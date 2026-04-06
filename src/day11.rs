@@ -1,3 +1,11 @@
+// Advent of Code 2025, Day 11: DAG Path Counting
+// https://adventofcode.com/2025/day/11
+//
+// Input is a directed acyclic graph. Part 1: count the number of distinct
+// paths from node "you" to node "out" (memoized DFS). Part 2: count paths
+// from "svr" to "out" that pass through both node "dac" and node "fft",
+// tracked via a 2-bit visited mask in the memoized DFS.
+
 use std::collections::HashMap;
 use std::fs;
 

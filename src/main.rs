@@ -17,6 +17,8 @@ mod testutil;
 
 use clap::{Parser, Subcommand};
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
+use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 use std::fmt::Display;
 use std::time::{Duration, Instant};
 
@@ -38,6 +40,9 @@ enum Command {
         /// Number of benchmark iterations per solution
         #[arg(short, long, default_value_t = DEFAULT_RUNS)]
         runs: u32,
+        /// Write benchmark results to this JSON file
+        #[arg(short, long, default_value = "bench/rust.json")]
+        json: String,
     },
     /// Print the puzzle input for a day, downloading it if needed
     Input {
@@ -50,6 +55,12 @@ enum Command {
     /// Print the puzzle description for a day, downloading it if needed
     Puzzle {
         day: u32,
+    },
+    /// Compare benchmark results from multiple languages
+    Compare {
+        /// Two or more bench JSON files to compare
+        #[arg(required = true, num_args = 2..)]
+        files: Vec<String>,
     },
 }
 
@@ -65,10 +76,44 @@ const DEFAULT_RUNS: u32 = 100;
 const TOP_BORDER: &str    = "  ┌────────────────┬──────────────────────┬───────────────┬──────────┬─────┐";
 const BOTTOM_BORDER: &str = "  └────────────────┴──────────────────────┴───────────────┴──────────┴─────┘";
 
+#[derive(Serialize, Deserialize)]
 struct BenchResult {
     answer: String,
-    avg_micros: u128,
+    avg_micros: u64,
     runs: u32,
+}
+
+#[derive(Serialize)]
+struct BenchEntry<'a> {
+    name: &'a str,
+    day: u32,
+    part: u32,
+    #[serde(flatten)]
+    result: &'a BenchResult,
+}
+
+#[derive(Serialize)]
+struct BenchOutput<'a> {
+    language: &'static str,
+    total_avg_micros: u64,
+    solutions: Vec<BenchEntry<'a>>,
+}
+
+#[derive(Deserialize)]
+struct BenchEntryOwned {
+    name: String,
+    day: u32,
+    part: u32,
+    #[serde(flatten)]
+    result: BenchResult,
+}
+
+#[derive(Deserialize)]
+struct BenchOutputOwned {
+    language: String,
+    #[allow(dead_code)]
+    total_avg_micros: u64,
+    solutions: Vec<BenchEntryOwned>,
 }
 
 fn run_benchmark<F, T>(name: &str, max_runs: u32, pb: &ProgressBar, f: F) -> BenchResult
@@ -97,7 +142,7 @@ where
     }
     BenchResult {
         answer: result.unwrap().to_string(),
-        avg_micros: (total / runs).as_micros(),
+        avg_micros: (total / runs).as_micros() as u64,
         runs,
     }
 }
@@ -118,7 +163,7 @@ fn format_row(name: &str, result: &BenchResult, expected: Option<&str>) -> Strin
 fn main() {
     let cli = Cli::parse();
 
-    match cli.command.unwrap_or(Command::Run { day: None, part: None, runs: DEFAULT_RUNS }) {
+    match cli.command.unwrap_or(Command::Run { day: None, part: None, runs: DEFAULT_RUNS, json: "bench/rust.json".to_string() }) {
         Command::Input { day } => {
             let path = input::ensure_input(day);
             print!("{}", std::fs::read_to_string(&path).unwrap());
@@ -132,13 +177,16 @@ fn main() {
             let path = input::ensure_puzzle(day);
             print!("{}", std::fs::read_to_string(&path).unwrap());
         }
-        Command::Run { day: filter_day, part: filter_part, runs } => {
-            run_solutions(filter_day, filter_part, runs);
+        Command::Run { day: filter_day, part: filter_part, runs, json } => {
+            run_solutions(filter_day, filter_part, runs, &json);
+        }
+        Command::Compare { files } => {
+            compare_results(&files);
         }
     }
 }
 
-fn run_solutions(filter_day: Option<u32>, filter_part: Option<u32>, bench_runs: u32) {
+fn run_solutions(filter_day: Option<u32>, filter_part: Option<u32>, bench_runs: u32, json_path: &str) {
     let day01 = input::ensure_input(1);
     let day02 = input::ensure_input(2);
     let day03 = input::ensure_input(3);
@@ -231,14 +279,15 @@ fn run_solutions(filter_day: Option<u32>, filter_part: Option<u32>, bench_runs: 
     bottom_bar.set_style(ProgressStyle::with_template("{msg}").unwrap());
     bottom_bar.finish_with_message(BOTTOM_BORDER);
 
-    let mut results: Vec<String> = Vec::with_capacity(solutions.len());
-    let mut total_avg_micros: u128 = 0;
+    let mut rows: Vec<String> = Vec::with_capacity(solutions.len());
+    let mut bench_results: Vec<(&str, u32, u32, BenchResult)> = Vec::with_capacity(solutions.len());
+    let mut total_avg_micros: u64 = 0;
 
-    for (i, (name, _, _, expected, f)) in solutions.iter().enumerate() {
+    for (i, (name, day, part, expected, f)) in solutions.iter().enumerate() {
         let result = run_benchmark(name, bench_runs, &bars[i], f.as_ref());
         total_avg_micros += result.avg_micros;
         let row = format_row(name, &result, expected.as_deref());
-        results.push(row.clone());
+        rows.push(row.clone());
 
         bars[i].set_style(ProgressStyle::with_template("  {msg}").unwrap());
         bars[i].finish_with_message(row);
@@ -247,11 +296,13 @@ fn run_solutions(filter_day: Option<u32>, filter_part: Option<u32>, bench_runs: 
             next.set_style(spinner_style.clone());
             next.enable_steady_tick(Duration::from_millis(80));
         }
+
+        bench_results.push((name, *day, *part, result));
     }
 
     mp.clear().unwrap();
 
-    for row in &results {
+    for row in &rows {
         println!("  {}", row);
     }
     println!("{}", BOTTOM_BORDER);
@@ -259,4 +310,122 @@ fn run_solutions(filter_day: Option<u32>, filter_part: Option<u32>, bench_runs: 
     let avg_ms = total_avg_micros as f64 / 1000.0;
     let color = if avg_ms < 1.0 { "\x1b[32m" } else { "\x1b[31m" };
     println!("\nTotal time: {}{:.1} ms\x1b[0m", color, avg_ms);
+
+    let output = BenchOutput {
+        language: "rust",
+        total_avg_micros,
+        solutions: bench_results.iter().map(|(name, day, part, r)| BenchEntry {
+            name,
+            day: *day,
+            part: *part,
+            result: r,
+        }).collect(),
+    };
+    let json = serde_json::to_string_pretty(&output).unwrap();
+    if let Some(parent) = std::path::Path::new(json_path).parent() {
+        std::fs::create_dir_all(parent).unwrap();
+    }
+    std::fs::write(json_path, json + "\n").unwrap();
+    println!("Benchmark results written to {json_path}");
+}
+
+fn compare_results(files: &[String]) {
+    let outputs: Vec<BenchOutputOwned> = files.iter().map(|f| {
+        let text = std::fs::read_to_string(f)
+            .unwrap_or_else(|e| panic!("Cannot read {f}: {e}"));
+        serde_json::from_str(&text)
+            .unwrap_or_else(|e| panic!("Cannot parse {f}: {e}"))
+    }).collect();
+
+    let languages: Vec<&str> = outputs.iter().map(|o| o.language.as_str()).collect();
+
+    // (day, part) -> language -> avg_micros
+    let mut table: BTreeMap<(u32, u32), BTreeMap<&str, u64>> = BTreeMap::new();
+    // preserve canonical name per (day, part)
+    let mut names: BTreeMap<(u32, u32), String> = BTreeMap::new();
+
+    for output in &outputs {
+        for entry in &output.solutions {
+            let key = (entry.day, entry.part);
+            names.entry(key).or_insert_with(|| entry.name.clone());
+            table.entry(key).or_default().insert(output.language.as_str(), entry.result.avg_micros);
+        }
+    }
+
+    // Column widths: name=16, each language=14 (right-aligned micros + ratio)
+    let lang_col = 16usize;
+    let name_col = 16usize;
+
+    // Header
+    let top: String = {
+        let mut s = format!("  ┌{:─<name_col$}┬", "─".repeat(name_col));
+        s.push_str(&languages.iter().map(|_| "─".repeat(lang_col)).collect::<Vec<_>>().join("┬"));
+        s.push('┐');
+        s
+    };
+    let sep: String = {
+        let mut s = format!("  ├{:─<name_col$}┼", "─".repeat(name_col));
+        s.push_str(&languages.iter().map(|_| "─".repeat(lang_col)).collect::<Vec<_>>().join("┼"));
+        s.push('┤');
+        s
+    };
+    let bot: String = {
+        let mut s = format!("  └{:─<name_col$}┴", "─".repeat(name_col));
+        s.push_str(&languages.iter().map(|_| "─".repeat(lang_col)).collect::<Vec<_>>().join("┴"));
+        s.push('┘');
+        s
+    };
+
+    println!("{top}");
+    // Language header row
+    let header_row = {
+        let mut s = format!("  │ {:<width$}│", "solution", width = name_col - 1);
+        for lang in &languages {
+            s.push_str(&format!(" {:>width$}│", lang, width = lang_col - 1));
+        }
+        s
+    };
+    println!("{header_row}");
+    println!("{sep}");
+
+    // Totals per language for summary row — only puzzles where all languages have an entry
+    let mut lang_totals: BTreeMap<&str, u64> = languages.iter().map(|&l| (l, 0u64)).collect();
+
+    for (key, lang_map) in &table {
+        let name = &names[key];
+        let all_present = languages.iter().all(|&l| lang_map.contains_key(l));
+        let fastest = lang_map.values().copied().min().unwrap_or(1).max(1);
+
+        let mut row = format!("  │ {:<width$}│", name, width = name_col - 1);
+        for &lang in &languages {
+            if let Some(&micros) = lang_map.get(lang) {
+                let ratio = micros as f64 / fastest as f64;
+                let cell = format!("{micros} μs {ratio:.1}x");
+                let color = if ratio < 1.5 { "\x1b[32m" } else if ratio < 3.0 { "\x1b[33m" } else { "\x1b[31m" };
+                // right-align within lang_col-1 chars, then colorize
+                row.push_str(&format!(" {color}{:>width$}\x1b[0m│", cell, width = lang_col - 1));
+                if all_present {
+                    *lang_totals.get_mut(lang).unwrap() += micros;
+                }
+            } else {
+                row.push_str(&format!(" {:>width$}│", "-", width = lang_col - 1));
+            }
+        }
+        println!("{row}");
+    }
+
+    // Totals row
+    println!("{sep}");
+    let total_fastest = lang_totals.values().copied().min().unwrap_or(1).max(1);
+    let mut total_row = format!("  │ {:<width$}│", "total", width = name_col - 1);
+    for &lang in &languages {
+        let micros = lang_totals[lang];
+        let ratio = micros as f64 / total_fastest as f64;
+        let ms = micros as f64 / 1000.0;
+        let cell = format!("{ms:.1} ms {ratio:.1}x");
+        let color = if ratio < 1.5 { "\x1b[32m" } else if ratio < 3.0 { "\x1b[33m" } else { "\x1b[31m" };
+        total_row.push_str(&format!(" {color}{:>width$}\x1b[0m│", cell, width = lang_col - 1));
+    }
+    println!("{total_row}");
+    println!("{bot}");
 }

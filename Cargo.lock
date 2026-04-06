@@ -65,6 +65,8 @@ dependencies = [
  "clap",
  "indicatif",
  "reqwest",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

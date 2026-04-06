@@ -1,3 +1,11 @@
+// Advent of Code 2025, Day 3: Battery Joltage
+// https://adventofcode.com/2025/day/3
+//
+// Each input line is a string of digits. To form the highest possible number,
+// greedily pick one digit at a time — always choosing the largest available
+// digit while leaving enough digits remaining for subsequent picks. Part 1
+// picks 2 digits (one battery); Part 2 picks 12 digits (twelve batteries).
+
 use std::fs;
 
 // Both parts greedily pick the lexicographically largest digit sequence from

@@ -1,3 +1,13 @@
+// Advent of Code 2025, Day 8: 3D Point Clustering
+// https://adventofcode.com/2025/day/8
+//
+// Given a set of 3D points (electronic boxes), group them into circuits by
+// proximity. Part 1: find the k=1000 globally closest pairs, union-find the
+// connected components, and return the product of the three largest circuit
+// sizes. Part 2: find the maximum-weight edge in the MST (Prim's O(N²)) —
+// this is the last connection needed to merge all boxes into one — and return
+// the product of the x-coordinates of its two endpoints.
+
 use std::{collections::BinaryHeap, fs};
 
 // Coordinates are small (< 1024 in practice), so squared distances fit in i32
