@@ -1,3 +1,5 @@
 /target
 inputs
 .aoc_session
+bench/*.json
+!bench/schema.json
