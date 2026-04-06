@@ -231,11 +231,12 @@ fn run_solutions(filter_day: Option<u32>, filter_part: Option<u32>, bench_runs: 
     bottom_bar.set_style(ProgressStyle::with_template("{msg}").unwrap());
     bottom_bar.finish_with_message(BOTTOM_BORDER);
 
-    let start = Instant::now();
     let mut results: Vec<String> = Vec::with_capacity(solutions.len());
+    let mut total_avg_micros: u128 = 0;
 
     for (i, (name, _, _, expected, f)) in solutions.iter().enumerate() {
         let result = run_benchmark(name, bench_runs, &bars[i], f.as_ref());
+        total_avg_micros += result.avg_micros;
         let row = format_row(name, &result, expected.as_deref());
         results.push(row.clone());
 
@@ -248,7 +249,6 @@ fn run_solutions(filter_day: Option<u32>, filter_part: Option<u32>, bench_runs: 
         }
     }
 
-    let duration = start.elapsed();
     mp.clear().unwrap();
 
     for row in &results {
@@ -256,7 +256,7 @@ fn run_solutions(filter_day: Option<u32>, filter_part: Option<u32>, bench_runs: 
     }
     println!("{}", BOTTOM_BORDER);
 
-    let avg_ms = duration.as_secs_f64() * 1000.0 / bench_runs as f64;
+    let avg_ms = total_avg_micros as f64 / 1000.0;
     let color = if avg_ms < 1.0 { "\x1b[32m" } else { "\x1b[31m" };
     println!("\nTotal time: {}{:.1} ms\x1b[0m", color, avg_ms);
 }
