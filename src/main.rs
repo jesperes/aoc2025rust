@@ -9,6 +9,7 @@ mod day08;
 mod day09;
 mod day10;
 mod day11;
+mod day12;
 mod input;
 mod verify;
 
@@ -147,6 +148,7 @@ fn run_solutions(filter_day: Option<u32>, filter_part: Option<u32>, bench_runs: 
     let day09 = input::ensure_input(9);
     let day10 = input::ensure_input(10);
     let day11 = input::ensure_input(11);
+    let day12 = input::ensure_input(12);
 
     let (a1p1, a1p2) = verify::expected_answers(1);
     let (a2p1, a2p2) = verify::expected_answers(2);
@@ -159,6 +161,7 @@ fn run_solutions(filter_day: Option<u32>, filter_part: Option<u32>, bench_runs: 
     let (a9p1, a9p2) = verify::expected_answers(9);
     let (a10p1, a10p2) = verify::expected_answers(10);
     let (a11p1, a11p2) = verify::expected_answers(11);
+    let (a12p1, a12p2) = verify::expected_answers(12);
 
     type Solution = (&'static str, u32, u32, Option<String>, Box<dyn Fn() -> String>);
     let all_solutions: Vec<Solution> = vec![
@@ -184,6 +187,8 @@ fn run_solutions(filter_day: Option<u32>, filter_part: Option<u32>, bench_runs: 
         ("day 10 part 2", 10, 2, a10p2, { let p = day10.clone(); Box::new(move || day10::solve_part2(&p).to_string()) }),
         ("day 11 part 1", 11, 1, a11p1, { let p = day11.clone(); Box::new(move || day11::solve_part1(&p).to_string()) }),
         ("day 11 part 2", 11, 2, a11p2, { let p = day11.clone(); Box::new(move || day11::solve_part2(&p).to_string()) }),
+        ("day 12 part 1", 12, 1, a12p1, { let p = day12.clone(); Box::new(move || day12::solve_part1(&p).to_string()) }),
+        ("day 12 part 2", 12, 2, a12p2, { let p = day12.clone(); Box::new(move || day12::solve_part2(&p).to_string()) }),
     ];
 
     let solutions: Vec<_> = all_solutions
