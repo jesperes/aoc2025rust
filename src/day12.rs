@@ -207,10 +207,6 @@ pub fn solve_part1(filename: &str) -> usize {
     count
 }
 
-pub fn solve_part2(_filename: &str) -> usize {
-    0
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
