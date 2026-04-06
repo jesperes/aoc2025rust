@@ -211,8 +211,45 @@ pub fn solve_part1(filename: &str) -> usize {
 mod tests {
     use super::*;
 
+    const EXAMPLE: &str = "\
+0:
+###
+##.
+##.
+
+1:
+###
+##.
+.##
+
+2:
+.##
+###
+##.
+
+3:
+##.
+###
+##.
+
+4:
+###
+#..
+###
+
+5:
+###
+.#.
+###
+
+4x4: 0 0 0 0 2 0
+12x5: 1 0 1 0 2 2
+12x5: 1 0 1 0 3 2
+";
+
     #[test]
     fn example() {
-        assert_eq!(solve_part1("/tmp/day12_ex.txt"), 2);
+        let tmp = crate::testutil::TempFile::write(EXAMPLE);
+        assert_eq!(solve_part1(tmp.path()), 2);
     }
 }

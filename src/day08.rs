@@ -212,9 +212,8 @@ mod tests {
 
     #[test]
     fn example() {
-        let path = "/tmp/day08_ex.txt";
-        std::fs::write(path, EXAMPLE).unwrap();
-        assert_eq!(top3_circuit_sizes(&parse(path), 10), 40);
-        assert_eq!(solve_part2(path), 25272);
+        let tmp = crate::testutil::TempFile::write(EXAMPLE);
+        assert_eq!(top3_circuit_sizes(&parse(tmp.path()), 10), 40);
+        assert_eq!(solve_part2(tmp.path()), 25272);
     }
 }

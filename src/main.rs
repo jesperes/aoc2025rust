@@ -12,6 +12,8 @@ mod day11;
 mod day12;
 mod input;
 mod verify;
+#[cfg(test)]
+mod testutil;
 
 use clap::{Parser, Subcommand};
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};

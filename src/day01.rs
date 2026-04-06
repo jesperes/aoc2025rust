@@ -83,9 +83,8 @@ L82
 
     #[test]
     fn example() {
-        let path = "/tmp/day01_ex.txt";
-        std::fs::write(path, EXAMPLE).unwrap();
-        assert_eq!(solve_part1(path), 3);
-        assert_eq!(solve_part2(path), 6);
+        let tmp = crate::testutil::TempFile::write(EXAMPLE);
+        assert_eq!(solve_part1(tmp.path()), 3);
+        assert_eq!(solve_part2(tmp.path()), 6);
     }
 }

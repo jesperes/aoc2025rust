@@ -87,11 +87,9 @@ hhh: out
 
     #[test]
     fn example() {
-        let p1 = "/tmp/day11_ex.txt";
-        let p2 = "/tmp/day11_ex2.txt";
-        std::fs::write(p1, EXAMPLE1).unwrap();
-        std::fs::write(p2, EXAMPLE2).unwrap();
-        assert_eq!(solve_part1(p1), 5);
-        assert_eq!(solve_part2(p2), 2);
+        let tmp1 = crate::testutil::TempFile::write(EXAMPLE1);
+        let tmp2 = crate::testutil::TempFile::write(EXAMPLE2);
+        assert_eq!(solve_part1(tmp1.path()), 5);
+        assert_eq!(solve_part2(tmp2.path()), 2);
     }
 }
